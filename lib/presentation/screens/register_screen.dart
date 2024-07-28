@@ -44,88 +44,51 @@ class _RegisterView extends StatelessWidget {
   }
 }
 
-class _RegisterForm extends StatefulWidget {
+class _RegisterForm extends StatelessWidget {
   const _RegisterForm();
 
   //ESTO ES EL ESTADO DEL STATEFUL
-  @override
-  State<_RegisterForm> createState() => _RegisterFormState();
-}
-
-class _RegisterFormState extends State<_RegisterForm> {
   //Creamos el GlobalKey
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
     final registerCubit = context.watch<RegisterCubit>();
+    final username = registerCubit.state.username;
+    final password = registerCubit.state.password;
+    final email = registerCubit.state.email;
+
+
     return Form(
-      key: _formKey,  //Enlazamos el FORM a traves del GlobalKey
+      // key: _formKey,  //Enlazamos el FORM a traves del GlobalKey
       child: Column(
         children: [
           CustomTextFormField(
             label: 'Nombre de usuario' ,
             icon: const Icon( Icons.supervised_user_circle_outlined),
-            // Si solo queremos que se redibuje cuando cambie
-            // onChanged: registerCubit.usernameChanged,
-            onChanged: (value) {
-              registerCubit.usernameChanged(value);
-              //Aqui valida cade vez que haya un cambio en el input
-              _formKey.currentState?.validate();
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Campo requerido';
-              if (value.trim().isEmpty) return 'Campo requerido';
-              if (value.length < 6) return 'La longitud minima del campo es de 6 caracteres'; 
-
-              return null;
-            },
+            onChanged:  registerCubit.usernameChanged,
+            errorMessage: username.errorMessage
           ),
           const SizedBox(height: 10,),
 
           CustomTextFormField(
             label: 'Correo electronico',
-            onChanged: (value) {
-              registerCubit.emailChanged(value);
-              _formKey.currentState!.validate();
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Campo requerido';
-              if (value.trim().isEmpty) return 'Campo requerido';
-              final emailRegExp = RegExp(
-                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-              );
-              if ( !emailRegExp.hasMatch(value) ) return 'No tiene formato de correo electronico';
-
-              return null;
-            },
-
+            onChanged:  registerCubit.emailChanged,
+            errorMessage: email.errorMessage,
           ),
+ 
           const SizedBox(height: 20),
 
           CustomTextFormField(
             label: 'Contraseña',
-            onChanged: (value) {
-              registerCubit.passwordChanged(value);
-              _formKey.currentState!.validate();
-            },
+            onChanged:  registerCubit.passwordChanged,
+            errorMessage: password.errorMEssage,
             obscure: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Campo requerido';
-              if (value.trim().isEmpty) return 'Campo requerido';
-              if (value.length < 6) return 'La longitud minima del campo es de 6 caracteres'; 
-
-              return null;
-            },
-
-
           ),
+
           const SizedBox(height: 20),
 
           FilledButton.tonalIcon(
             onPressed: (){
-              final isValid = _formKey.currentState!.validate();
-              if (!isValid) return;
+
               registerCubit.onSubmit();
             }, 
             icon: const Icon( Icons.save ),
